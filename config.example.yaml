@@ -1,0 +1,38 @@
+# MatrixBench 配置文件
+# 使用方式：cp config.example.yaml config.yaml，修改后运行
+
+databases:
+  - name: "PostgreSQL"
+    type: postgresql
+    host: localhost
+    port: 5432
+    database: tpch
+    user: benchmark
+    password: "${POSTGRES_PASSWORD}"
+    params:
+      - "SET work_mem = '256MB'"
+
+  - name: "MySQL"
+    type: mysql
+    host: localhost
+    port: 3306
+    database: tpch
+    user: benchmark
+    password: "${MYSQL_PASSWORD}"
+    params:
+      - "SET SESSION sort_buffer_size = 262144"
+
+benchmark:
+  queries_dir: "./queries/"
+  warmup: true
+  warmup_rounds: 1
+  test_rounds: 3
+  timeout_seconds: 300
+  concurrency: 1  # 并发数（1=串行；并发执行留作扩展）
+
+output:
+  output_dir: "./results"
+  raw_csv: "raw_records.csv"
+  summary_csv: "comparison_summary.csv"
+  report_file: "report.md"
+  metadata_file: "metadata.json"
