@@ -9,3 +9,5 @@ select = ["E", "F", "I", "UP", "B", "BLE", "EXE"]
 "src/db_connector.py" = ["BLE001"]
 # 独立脚本需要先把项目根目录加入 sys.path，之后才能导入 src。
 "scripts/validate_database.py" = ["E402"]
+# 图表脚本需兼容 Python 3.9+ 环境，不使用 zip(strict=) 语法。
+"tools/make_charts.py" = ["B905", "EXE001"]

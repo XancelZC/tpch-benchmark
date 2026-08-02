@@ -16,11 +16,19 @@ import matplotlib.pyplot as plt
 
 
 def configure_font() -> None:
-    """选择 macOS 中文字体，找不到时使用 matplotlib 默认字体。"""
+    """选择当前平台可用的中文字体，保证 macOS / Windows / Linux 图表中文正常。"""
+    # 按平台候选顺序依次探测，命中第一个存在的字体。
+    # macOS 优先 PingFang，Windows 优先微软雅黑，Linux 兜底文泉驿微米黑。
     for font_path in (
         "/System/Library/Fonts/PingFang.ttc",
         "/System/Library/Fonts/STHeiti Light.ttc",
         "/System/Library/Fonts/Hiragino Sans GB.ttc",
+        "C:/Windows/Fonts/msyh.ttc",
+        "C:/Windows/Fonts/msyh.ttf",
+        "C:/Windows/Fonts/simhei.ttf",
+        "C:/Windows/Fonts/simsun.ttc",
+        "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc",
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
     ):
         path = Path(font_path)
         if path.exists():
@@ -67,9 +75,17 @@ def main() -> None:
     bars = ax.bar(labels, values, color=colors)
     ax.set_ylabel("总耗时（秒）")
     ax.set_title("最终 run 四库总耗时对比（5 轮正式测试）")
-    ax.set_yscale("log")
+    # 当前四库耗时在同一量级（8~25 秒），使用线性坐标让柱子高度直接反映真实比例
+    ax.set_ylim(0, max(values) * 1.15)
     for bar, value in zip(bars, values):
-        ax.text(bar.get_x() + bar.get_width() / 2, value * 1.08, f"{value:.1f}s", ha="center")
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            value + max(values) * 0.02,
+            f"{value:.1f}s",
+            ha="center",
+            va="bottom",
+            fontsize=11,
+        )
     ax.grid(axis="y", alpha=0.3)
     fig.tight_layout()
     fig.savefig(output / "overall_total.png", dpi=150)
@@ -82,8 +98,17 @@ def main() -> None:
     ax.axhline(1, color="black", linestyle="--", linewidth=1)
     ax.set_ylabel("几何均值 speedup（x）")
     ax.set_title("YMatrix 对各库的几何均值 speedup")
+    # speedup 跨度小，使用线性坐标避免视觉压缩
+    ax.set_ylim(0, max(max(values), 1.0) * 1.25)
     for bar, value in zip(bars, values):
-        ax.text(bar.get_x() + bar.get_width() / 2, value * 1.05, f"{value:.2f}x", ha="center")
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            value + max(values) * 0.03,
+            f"{value:.2f}x",
+            ha="center",
+            va="bottom",
+            fontsize=11,
+        )
     ax.grid(axis="y", alpha=0.3)
     fig.tight_layout()
     fig.savefig(output / "speedup_summary.png", dpi=150)
@@ -94,8 +119,13 @@ def main() -> None:
         key=lambda value: int(value[1:]),
     )
     other = databases[1]
-    base_values = [sum(query_times[(base_database, q)]) / len(query_times[(base_database, q)]) for q in query_ids]
-    other_values = [sum(query_times[(other, q)]) / len(query_times[(other, q)]) for q in query_ids]
+    base_values = [
+        sum(query_times[(base_database, q)]) / len(query_times[(base_database, q)])
+        for q in query_ids
+    ]
+    other_values = [
+        sum(query_times[(other, q)]) / len(query_times[(other, q)]) for q in query_ids
+    ]
     fig, ax = plt.subplots(figsize=(14, 6))
     x = list(range(len(query_ids)))
     width = 0.38

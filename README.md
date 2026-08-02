@@ -64,6 +64,22 @@ bash scripts/teardown_all.sh            # 删容器 + 删数据
 bash scripts/teardown_all.sh --keep-data  # 删容器，保留数据
 ```
 
+## Windows 复现说明
+
+Windows 平台通过 **WSL2 + Docker Desktop** 复现，数据库全部运行在 Linux 容器内，与宿主机操作系统无关。
+
+1. 安装 [WSL2](https://learn.microsoft.com/windows/wsl/install)（建议 Ubuntu）和 [Docker Desktop](https://www.docker.com/products/docker-desktop/)（需启用 WSL2 后端）；
+2. 在 WSL 中安装 `python3`、`python3-venv`、`python3-pip`、`git`；
+3. 将项目放到 WSL 文件系统内（如 `~/tpch-benchmark`，不要放在 `/mnt/c/` 下，避免文件锁和路径性能问题）；
+4. 在 WSL 终端中执行与 README 一致的命令：`bash scripts/bootstrap_all.sh`。
+
+说明：
+
+- 脚本均为 bash，需在 WSL 或 Git Bash 中执行，不能在 cmd/PowerShell 直接运行；
+- Windows 主机绝大多数为 x86_64，YMatrix 社区镜像可直接运行，**无需 Rosetta 转译**；
+- 图表脚本已适配 Windows 中文字体（微软雅黑），中文正常显示；
+- 若使用 Git Bash（非 WSL），`docker` 命令同样可用，但更推荐 WSL2 以获得一致的 Linux 环境。
+
 ## 手动流程（可选）
 
 以下为分步说明，`bootstrap_all.sh` 已封装全部步骤，手动执行用于排查。
