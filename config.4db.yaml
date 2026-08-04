@@ -1,0 +1,60 @@
+# MatrixBench 四库受控本地测试配置
+# 密码仅用于隔离的本地容器，不得用于生产环境。
+
+databases:
+  - name: YMatrix
+    type: ymatrix
+    host: localhost
+    port: 15432
+    database: tpch
+    user: mxadmin
+    password: ""
+    container: ymatrix-tpch
+    params: []
+
+  - name: Greenplum
+    type: greenplum
+    host: localhost
+    port: 15433
+    database: tpch
+    user: gpadmin
+    password: gpadmin
+    container: gp-tpch
+    params: []
+
+  - name: PostgreSQL
+    type: postgresql
+    host: localhost
+    port: 5432
+    database: tpch
+    user: benchmark
+    password: benchmark
+    container: pg-tpch
+    params: []
+
+  - name: MySQL
+    type: mysql
+    host: localhost
+    port: 3306
+    database: tpch
+    user: benchmark
+    password: benchmark
+    container: mysql-tpch
+    params: []
+
+benchmark:
+  queries_dir: ./queries
+  warmup: true
+  warmup_rounds: 1
+  test_rounds: 5
+  timeout_seconds: 300
+  concurrency: 1
+  randomize_query_order: true
+  random_seed: 42
+
+output:
+  output_dir: ./results/final
+  raw_csv: raw_records.csv
+  summary_csv: comparison_summary.csv
+  report_file: report.md
+  metadata_file: metadata.json

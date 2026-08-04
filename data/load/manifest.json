@@ -1,0 +1,58 @@
+{
+  "generator": "electrum/tpch-dbgen",
+  "generator_reported_version": "2.14.0",
+  "generator_commit": "32f1c1b92d1664dba542e927d23d86ffa57aa253",
+  "scale_factor": 0.1,
+  "command": "dbgen -vf -s 0.1",
+  "disclaimer": "TPC-H 派生工程数据；未经 TPC 审计，不可与公开 TPC-H 结果比较。",
+  "files": {
+    "region": {
+      "rows": 5,
+      "bytes": 384,
+      "sha256": "5a7c2fe9718db00ff5e5bc82a9ebfa8abc492cc75260d3c0ffb411974f235ab0",
+      "raw_sha256": "6022658d673924389b54dcb70fa8c3d6da1b0d7afa3c1c017bab62a019df404f"
+    },
+    "nation": {
+      "rows": 25,
+      "bytes": 2199,
+      "sha256": "7d47bc9397da331054fa92b8fb92e4c074004bad72dcbb893012093218dccf6c",
+      "raw_sha256": "66f96949939fa8fdf1c4ffed1e5f6c2842fe11a14b51fdc6ed1e17460031e8c5"
+    },
+    "supplier": {
+      "rows": 1000,
+      "bytes": 138625,
+      "sha256": "3a83adcdf515ca1b15bfa60b5808b03d7432b19e8b778572a97f3d0d86e1ae39",
+      "raw_sha256": "75d5d11bd57607c5386295e74bb8edec4af5dd08d43c5831b67c224473be9a08"
+    },
+    "customer": {
+      "rows": 15000,
+      "bytes": 2411114,
+      "sha256": "16ece524c820347cb1dead9c905b65156c755529a5a53bb13672c9358daade49",
+      "raw_sha256": "952d7f4ee8787657c94e488aae78524439f904fde9113382943ced58ba7895fa"
+    },
+    "part": {
+      "rows": 20000,
+      "bytes": 2371090,
+      "sha256": "7beb0cf5013f9066bdbd4ddba886bce2bfc08a156c786de3cda1204cb4332e7b",
+      "raw_sha256": "f262984f0a5063d20b2aff651c5ac8ca1eea182b3ee75b6a5dab3854eb471997"
+    },
+    "partsupp": {
+      "rows": 80000,
+      "bytes": 11648193,
+      "sha256": "0a3026c320ddbdf62ac5d0cf9ca6541bd82f0225aa3be6f9cd0f1dffe3857fc4",
+      "raw_sha256": "9a50586162af988723fa2c64969454ca34840e9a602bb9fbc974b9c3808f6620"
+    },
+    "orders": {
+      "rows": 150000,
+      "bytes": 16743122,
+      "sha256": "8a4d2e3be83b68e45f29bb3bb9c42dacabec61819f8695e6b045a0c6a4cbb67b",
+      "raw_sha256": "5e9fabe33d7f15596225a00da871f8c18b3da76f515c91119840c7115c50d101"
+    },
+    "lineitem": {
+      "rows": 600572,
+      "bytes": 73646424,
+      "sha256": "ee0a96ffebe62c1d8297b0ad389881330a425425efe8051263d63908f4eed48a",
+      "raw_sha256": "6fe51474be8c04e04737c83f1cea2feaf3179e4f3bd6ba08c5065928d96ee60b"
+    }
+  }
+}

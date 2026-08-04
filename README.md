@@ -113,6 +113,76 @@ tests/               单元测试
 - 四个数据库容器；
 - Apple Silicon 上 YMatrix 需 Rosetta（Windows/Linux x86_64 免转译）。
 
+### 配置说明
+
+复制示例配置并填写数据库连接信息：
+
+```bash
+cp config.example.yaml config.yaml
+```
+
+配置分三个部分：`databases`（数据库列表）、`benchmark`（测试参数）、`output`（输出配置）。
+
+**databases（数据库列表）**
+
+至少 2 个数据库，名称需唯一。支持 `postgresql` / `mysql` / `ymatrix` / `greenplum` 四种类型：
+
+```yaml
+databases:
+  - name: "PostgreSQL"        # 显示名称（需唯一）
+    type: postgresql          # 类型：postgresql/mysql/ymatrix/greenplum
+    host: localhost
+    port: 5432                # mysql 默认 3306，其余默认 5432
+    database: tpch
+    user: benchmark
+    password: "${POSTGRES_PASSWORD}"   # 支持环境变量展开
+    container: pg-tpch        # 可选，用于记录容器快照
+    params:                   # 可选，连接后执行的 SQL（如调参）
+      - "SET work_mem = '256MB'"
+```
+
+**benchmark（测试参数）**
+
+```yaml
+benchmark:
+  queries_dir: "./queries/"   # 查询 SQL 目录
+  warmup: true                # 是否预热
+  warmup_rounds: 1            # 预热轮数（不进入统计）
+  test_rounds: 5              # 正式轮数
+  timeout_seconds: 300        # 单条查询超时
+  concurrency: 1              # 并发数（当前仅支持 1，大于 1 直接报错）
+  randomize_query_order: true # 轮内查询顺序确定性随机化
+  random_seed: 42             # 随机种子（固定保证可复现）
+```
+
+**output（输出配置）**
+
+```yaml
+output:
+  output_dir: "./results/final"     # 结果目录，run 会生成其下的时间戳子目录
+  raw_csv: "raw_records.csv"        # 逐轮原始记录
+  summary_csv: "comparison_summary.csv"  # 对比汇总
+  report_file: "report.md"          # Markdown 报告
+  metadata_file: "metadata.json"    # 环境与运行元数据
+```
+
+最终 benchmark 使用的 `config.4db.yaml` 将 `output_dir` 设为 `./results/final`，因此正式结果位于 `results/final/<run_id>/`。
+
+**密码安全**：配置文件支持 `${ENV_NAME}` 环境变量展开，推荐用环境变量而非明文：
+
+```bash
+export POSTGRES_PASSWORD='***'
+export MYSQL_PASSWORD='***'
+```
+
+**配置校验规则**（不符合会拒绝运行）：
+
+- 至少 2 个数据库，且名称唯一；
+- 数据库类型必须是 `postgresql` / `mysql` / `ymatrix` / `greenplum` 之一；
+- 端口必须是 1~65535 的整数；
+- 轮数、超时必须是正整数；
+- `concurrency` 当前必须为 1（并发留作扩展，不静默降级）。
+
 ### 安装与数据
 
 ```bash
@@ -171,7 +241,7 @@ results/<profile>/<run_id>/
 
 ## 最终运行结果
 
-最终 run：`results/final/20260801T162440Z/`
+最终 run：`results/final/20260804T040518Z/`
 
 环境：四库全部 `x86_64`，每个容器限制为 4 CPU、3 GiB 内存、无额外 swap；预热 1 轮，正式 5 轮，超时 300 秒，串行执行。
 
@@ -184,9 +254,9 @@ results/<profile>/<run_id>/
 
 | 对比 | 总耗时比 | 查询中位数 speedup | 几何均值 | YMatrix 胜/负/平 |
 |---|---:|---:|---:|---:|
-| YMatrix vs Greenplum | 2.26x | 2.29x | 2.50x | 18/4/0 |
-| YMatrix vs PostgreSQL | 0.75x | 1.06x | 0.85x | 11/11/0 |
-| YMatrix vs MySQL | 2.27x | 2.29x | 3.51x | 15/7/0 |
+| YMatrix vs Greenplum | 2.31x | 2.32x | 2.47x | 18/4/0 |
+| YMatrix vs PostgreSQL | 0.70x | 0.95x | 0.78x | 11/11/0 |
+| YMatrix vs MySQL | 2.28x | 2.87x | 2.00x | 15/7/0 |
 
 这里的总耗时比是对照库总耗时除以 YMatrix 总耗时；大于 1 表示 YMatrix 的整套串行 workload 更快。算术平均只作为辅助指标，避免被离群查询误导。
 
@@ -209,7 +279,6 @@ results/<profile>/<run_id>/
 ## 交付材料
 
 - `report.md`：项目报告；
-- `附加文档.md`：HR 要求的目标、关键判断和验证场景；
-- `DECISIONS.md`：设计决策与取舍；
+- `附加文档.md`：核心目标、关键判断和验证场景；
 - `ai_usage.md`：AI 使用、错误识别和修正记录；
 - `docs/YMatrix部署记录.md`：YMatrix 本地部署排障记录。

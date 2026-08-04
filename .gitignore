@@ -7,12 +7,10 @@ __pycache__/
 
 # 本地凭据和生成数据
 config.yaml
-config.4db.yaml
 config.preflight.yaml
 .env
 .env.*
 data/raw/
 data/load/*.tbl
-results/
 *.log
 .DS_Store
