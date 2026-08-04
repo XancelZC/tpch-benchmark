@@ -8,11 +8,16 @@ import csv
 from collections import defaultdict
 from pathlib import Path
 
-import matplotlib
+try:
+    import matplotlib
 
-matplotlib.use("Agg")
-import matplotlib.font_manager as fm
-import matplotlib.pyplot as plt
+    matplotlib.use("Agg")
+    import matplotlib.font_manager as fm
+    import matplotlib.pyplot as plt
+except ImportError as exc:
+    raise SystemExit(
+        "缺少 matplotlib：请先执行 `pip install -r requirements.txt` 再生成图表。"
+    ) from exc
 
 
 def configure_font() -> None:

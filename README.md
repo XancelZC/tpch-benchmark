@@ -4,6 +4,83 @@
 
 > 当前结果是基于固定 `dbgen` 数据和查询模板的派生工程微基准，不是经 TPC 审计的正式 TPC-H 结果，不能与公开 TPC-H 榜单直接比较。
 
+## 快速开始
+
+按你的平台选择对应的复现方式。完成后会自动生成报告和图表。
+
+### macOS
+
+```bash
+# 1. 安装依赖
+python3 -m venv .venv && . .venv/bin/activate
+pip install -r requirements.txt
+
+# 2. 一键从零复现（启动四库容器 → 生成数据 → 初始化 → 校验 → 跑 5 轮 → 出报告 + 图表）
+bash scripts/bootstrap_all.sh
+
+# 3. 查看结果
+open results/final/$(cat results/final/LATEST)/report.md
+```
+
+### Windows（WSL2）
+
+数据库全部运行在 Linux 容器内，与宿主机操作系统无关。Windows 主机绝大多数为 x86_64，YMatrix 社区镜像可直接运行，**无需 Rosetta 转译**。
+
+1. 安装 [WSL2](https://learn.microsoft.com/windows/wsl/install)（建议 Ubuntu）和 [Docker Desktop](https://www.docker.com/products/docker-desktop/)（需启用 WSL2 后端）；
+2. 在 WSL 中安装 `python3`、`python3-venv`、`python3-pip`、`git`；
+3. 将项目放到 WSL 文件系统内（如 `~/tpch-benchmark`，不要放在 `/mnt/c/` 下，避免文件锁和路径性能问题）；
+4. 在 WSL 终端中执行：
+
+```bash
+python3 -m venv .venv && . .venv/bin/activate
+pip install -r requirements.txt
+bash scripts/bootstrap_all.sh
+```
+
+5. 查看结果：打开 `results/final/$(cat results/final/LATEST)/report.md`。
+
+> 脚本均为 bash，需在 WSL 或 Git Bash 中执行，不能在 cmd/PowerShell 直接运行。若使用 Git Bash（非 WSL），`docker` 命令同样可用，但更推荐 WSL2 以获得一致的 Linux 环境。
+
+### Linux
+
+```bash
+# 1. 安装依赖
+python3 -m venv .venv && . .venv/bin/activate
+pip install -r requirements.txt
+
+# 2. 一键从零复现
+bash scripts/bootstrap_all.sh
+
+# 3. 查看结果
+cat results/final/$(cat results/final/LATEST)/report.md
+```
+
+### 复现说明（通用）
+
+`bootstrap_all.sh` 自动完成：
+
+```text
+1. 启动并部署四库容器（YMatrix 含完整部署链，幂等可重复执行）
+2. 生成标准 TPC-H 数据（固定 dbgen commit，可审计）
+3. 初始化四库（indexed profile：建表 + 导入 + 索引 + ANALYZE）
+4. 校验四库数据一致性（行数 + 谓词 + 结果 hash）
+5. 执行 benchmark（预热 1 轮 + 正式 5 轮）
+6. 自动生成图表（3 张 PNG：总耗时对比、speedup、逐查询对比）
+```
+
+只重建环境不跑 benchmark：
+
+```bash
+bash scripts/bootstrap_all.sh --skip-benchmark
+```
+
+清理环境（重新复现前使用）：
+
+```bash
+bash scripts/teardown_all.sh            # 删容器 + 删数据
+bash scripts/teardown_all.sh --keep-data  # 删容器，保留数据
+```
+
 ## 项目目标
 
 - 配置驱动执行 22 条查询；
@@ -24,73 +101,17 @@ results/final/       最终运行产物
 tests/               单元测试
 ```
 
-## 快速开始（一键复现）
-
-在已安装 Docker（或 OrbStack）的机器上：
-
-```bash
-# 1. 安装依赖
-python3 -m venv .venv && . .venv/bin/activate
-pip install -r requirements.txt
-
-# 2. 一键从零复现（启动四库容器 → 生成数据 → 初始化 → 校验 → 跑 5 轮 → 出报告）
-bash scripts/bootstrap_all.sh
-
-# 3. 查看结果
-open results/final/$(cat results/final/LATEST)/report.md
-```
-
-`bootstrap_all.sh` 自动完成：
-
-```text
-1. 启动并部署四库容器（YMatrix 含完整部署链，幂等可重复执行）
-2. 生成标准 TPC-H 数据（固定 dbgen commit，可审计）
-3. 初始化四库（indexed profile：建表 + 导入 + 索引 + ANALYZE）
-4. 校验四库数据一致性（行数 + 谓词 + 结果 hash）
-5. 执行 benchmark（预热 1 轮 + 正式 5 轮）
-6. 生成图表
-```
-
-只重建环境不跑 benchmark：
-
-```bash
-bash scripts/bootstrap_all.sh --skip-benchmark
-```
-
-清理环境（重新复现前使用）：
-
-```bash
-bash scripts/teardown_all.sh            # 删容器 + 删数据
-bash scripts/teardown_all.sh --keep-data  # 删容器，保留数据
-```
-
-## Windows 复现说明
-
-Windows 平台通过 **WSL2 + Docker Desktop** 复现，数据库全部运行在 Linux 容器内，与宿主机操作系统无关。
-
-1. 安装 [WSL2](https://learn.microsoft.com/windows/wsl/install)（建议 Ubuntu）和 [Docker Desktop](https://www.docker.com/products/docker-desktop/)（需启用 WSL2 后端）；
-2. 在 WSL 中安装 `python3`、`python3-venv`、`python3-pip`、`git`；
-3. 将项目放到 WSL 文件系统内（如 `~/tpch-benchmark`，不要放在 `/mnt/c/` 下，避免文件锁和路径性能问题）；
-4. 在 WSL 终端中执行与 README 一致的命令：`bash scripts/bootstrap_all.sh`。
-
-说明：
-
-- 脚本均为 bash，需在 WSL 或 Git Bash 中执行，不能在 cmd/PowerShell 直接运行；
-- Windows 主机绝大多数为 x86_64，YMatrix 社区镜像可直接运行，**无需 Rosetta 转译**；
-- 图表脚本已适配 Windows 中文字体（微软雅黑），中文正常显示；
-- 若使用 Git Bash（非 WSL），`docker` 命令同样可用，但更推荐 WSL2 以获得一致的 Linux 环境。
-
 ## 手动流程（可选）
 
 以下为分步说明，`bootstrap_all.sh` 已封装全部步骤，手动执行用于排查。
 
 ### 环境依赖
 
-- macOS + Docker/OrbStack；
+- Docker（macOS 可用 OrbStack）；
 - Python 3.10+；
-- `psycopg2-binary`、`mysql-connector-python`、`PyYAML`；
+- `psycopg2-binary`、`mysql-connector-python`、`PyYAML`、`matplotlib`；
 - 四个数据库容器；
-- amd64 YMatrix 镜像需要 Rosetta。
+- Apple Silicon 上 YMatrix 需 Rosetta（Windows/Linux x86_64 免转译）。
 
 ### 安装与数据
 
@@ -104,7 +125,7 @@ python3 scripts/validate_data.py data/load
 
 数据生成脚本固定 dbgen 源码 commit，并输出 `data/load/manifest.json`。生成的数据规模为 SF=0.1，完整行数见 manifest，不使用旧的自定义随机生成器作为正式数据入口。
 
-## 初始化数据库
+### 初始化数据库
 
 四库脚本支持两种 profile：
 
@@ -126,7 +147,7 @@ bash scripts/init_mpp.sh YMatrix indexed
 python3 scripts/validate_database.py --config config.4db.yaml --database YMatrix
 ```
 
-## 运行方式
+### 运行方式
 
 ```bash
 python3 main.py -c config.4db.yaml
@@ -141,7 +162,11 @@ results/<profile>/<run_id>/
 ├── raw_records.csv
 ├── comparison_summary.csv
 ├── metadata.json
-└── report.md
+├── report.md
+└── charts/
+    ├── overall_total.png
+    ├── speedup_summary.png
+    └── query_compare.png
 ```
 
 ## 最终运行结果

@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 import logging
+import os
 import platform
 import subprocess
 import sys
@@ -233,6 +234,25 @@ def main() -> None:
     latest = Path(config.output.output_dir) / "LATEST"
     latest.write_text(run_id + "\n", encoding="utf-8")
     logger.info("运行产物：%s", run_dir)
+
+    # 自动生成图表（独立脚本，失败不影响主结果）
+    try:
+        chart_env = os.environ.copy()
+        chart_env.pop("PYTHONPATH", None)
+        subprocess.run(
+            [sys.executable, str(Path(__file__).parent / "tools" / "make_charts.py"), str(run_dir)],
+            check=False,
+            capture_output=True,
+            timeout=120,
+            env=chart_env,
+        )
+        chart_dir = run_dir / "charts"
+        if chart_dir.is_dir() and any(chart_dir.glob("*.png")):
+            logger.info("图表已生成：%s", chart_dir)
+        else:
+            logger.warning("图表生成未产出文件，可手动执行 tools/make_charts.py %s", run_dir)
+    except (OSError, subprocess.SubprocessError) as exc:
+        logger.warning("图表自动生成失败（不影响结果）：%s", exc)
 
     if (failures or mismatches) and not args.allow_result_mismatch:
         if failures:

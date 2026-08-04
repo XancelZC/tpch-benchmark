@@ -111,6 +111,7 @@ def run_benchmark(
     result = BenchmarkResult(db_name)
     if warmup:
         for index in range(warmup_rounds):
+            logger.info("预热轮 %d/%d（不进入统计）", index + 1, warmup_rounds)
             warmup_records = run_round(
                 connector,
                 queries,
@@ -125,6 +126,7 @@ def run_benchmark(
                 failed = ", ".join(record.query_id for record in failures)
                 raise RuntimeError(f"Warmup failed for {db_name}: {failed}")
     for round_num in range(1, test_rounds + 1):
+        logger.info("正式轮 %d/%d", round_num, test_rounds)
         result.records.extend(
             run_round(
                 connector,
