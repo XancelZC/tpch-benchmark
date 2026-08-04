@@ -55,6 +55,10 @@ def compare_results(base: BenchmarkResult, other: BenchmarkResult) -> list[dict[
                 "other_avg_ms": float(right.get("avg_ms", 0)),
                 "base_median_ms": base_median,
                 "other_median_ms": other_median,
+                "base_min_ms": float(left.get("min_ms", 0)),
+                "other_min_ms": float(right.get("min_ms", 0)),
+                "base_max_ms": float(left.get("max_ms", 0)),
+                "other_max_ms": float(right.get("max_ms", 0)),
                 "base_p95_ms": float(left.get("p95_ms", 0)),
                 "other_p95_ms": float(right.get("p95_ms", 0)),
                 "speedup": round(speedup, 6),
@@ -184,17 +188,48 @@ def generate_report(
             "",
             "## 3. 逐查询比较",
             "",
-            "| 查询 | 基准库 | 对照库 | 基准中位数(ms) | 对照中位数(ms) | 加速比 | 更快 |",
-            "|---|---|---|---:|---:|---:|---|",
+            "| 查询 | 基准库 | 对照库 | 基准中位数(ms) | 对照中位数(ms) | 基准min/max(ms) | 对照min/max(ms) | 加速比 | 更快 |",
+            "|---|---|---|---:|---:|---|---:|---:|---|",
         ]
     )
     for row in comparisons:
         lines.append(
             f"| {row['query_id']} | {row['base_database']} | {row['other_database']} | "
             f"{row['base_median_ms']:.2f} | {row['other_median_ms']:.2f} | "
+            f"{row['base_min_ms']:.2f}/{row['base_max_ms']:.2f} | "
+            f"{row['other_min_ms']:.2f}/{row['other_max_ms']:.2f} | "
             f"{_format_ratio(row['speedup'])} | {row['faster']} |"
         )
-    lines.extend(["", "## 4. 失败记录", ""])
+    lines.extend(
+        [
+            "",
+            "### Top 慢 SQL（按中位数耗时降序，取前 10）",
+            "",
+            "| 排名 | 查询 | 基准库中位数(ms) | 对照库中位数(ms) | 中位数合计(ms) | 加速比 | 更快 |",
+            "|---:|---|---:|---:|---:|---:|---|",
+        ]
+    )
+    top_slow = sorted(
+        comparisons,
+        key=lambda row: row["base_median_ms"] + row["other_median_ms"],
+        reverse=True,
+    )[:10]
+    for rank, row in enumerate(top_slow, start=1):
+        total_ms = row["base_median_ms"] + row["other_median_ms"]
+        lines.append(
+            f"| {rank} | {row['query_id']} | {row['base_median_ms']:.2f} | "
+            f"{row['other_median_ms']:.2f} | {total_ms:.2f} | "
+            f"{_format_ratio(row['speedup'])} | {row['faster']} |"
+        )
+    lines.extend(
+        [
+            "",
+            "Top 慢 SQL 按两个库中位数耗时之和排序，用于定位整套 workload 中耗时最长的查询。",
+            "",
+            "## 4. 失败记录",
+            "",
+        ]
+    )
     failures = [
         record
         for result in results.values()
