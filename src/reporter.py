@@ -138,7 +138,7 @@ def generate_report(
 ) -> None:
     """根据最终运行数据动态生成报告，不使用硬编码性能数字。"""
     lines = [
-        "# MatrixBench 测试报告",
+        "# tpch-benchmark 测试报告",
         "",
         "> 本测试是基于 TPC-H 数据模型与查询模板的派生工作负载，"
         "不是经 TPC 审计的正式 TPC-H 结果，不能与公开 TPC-H 榜单直接比较。",

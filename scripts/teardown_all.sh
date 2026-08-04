@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 清理 MatrixBench 环境（容器 + 数据）。
+# 清理 tpch-benchmark 环境（容器 + 数据）。
 # 用法：bash scripts/teardown_all.sh [--keep-data]
 #   --keep-data  保留 data/load（重新生成数据较慢）
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# MatrixBench 一键复现：从零到最终 benchmark 完整链路。
+# tpch-benchmark 一键复现：从零到最终 benchmark 完整链路。
 #
 # 用法：
 #   bash scripts/bootstrap_all.sh                 # 完整流程（含 benchmark）

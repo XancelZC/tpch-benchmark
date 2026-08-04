@@ -1,4 +1,4 @@
-# MatrixBench AI 使用说明
+# tpch-benchmark AI 使用说明
 
 ## 1. 使用了哪些 AI 工具
 

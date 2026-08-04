@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""MatrixBench：多数据库查询执行、校验与结果汇总工具。"""
+"""tpch-benchmark：多数据库查询执行、校验与结果汇总工具。"""
 
 from __future__ import annotations
 
@@ -140,7 +140,7 @@ def validate_result_hashes(results: dict[str, BenchmarkResult]) -> list[str]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="MatrixBench 多数据库查询测试工具")
+    parser = argparse.ArgumentParser(description="tpch-benchmark 多数据库查询测试工具")
     parser.add_argument("-c", "--config", default="config.yaml", help="配置文件路径")
     parser.add_argument(
         "--allow-result-mismatch",

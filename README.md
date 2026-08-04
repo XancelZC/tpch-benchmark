@@ -1,4 +1,4 @@
-# MatrixBench
+# tpch-benchmark
 
 基于 TPC-H 数据模型与查询模板的多数据库性能测试工具，面向 FDE 的客户 PoC、迁移评估和竞品分析场景。
 

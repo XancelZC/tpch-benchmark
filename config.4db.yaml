@@ -1,4 +1,4 @@
-# MatrixBench 四库受控本地测试配置
+# tpch-benchmark 四库受控本地测试配置
 # 密码仅用于隔离的本地容器，不得用于生产环境。
 
 databases:
